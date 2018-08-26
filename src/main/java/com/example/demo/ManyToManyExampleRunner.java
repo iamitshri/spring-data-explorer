@@ -46,7 +46,7 @@ import lombok.experimental.FieldDefaults;
 import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
-@Component
+//@Component
 @Order(2)
 @RequiredArgsConstructor
 public class ManyToManyExampleRunner implements ApplicationRunner {
@@ -93,8 +93,9 @@ public class ManyToManyExampleRunner implements ApplicationRunner {
 		userRepo.save(amit);
 
 		RoleProjection result = roleRepo.findByRoleId(8L);
-		log.debug("Projection feature test:{}, {}, {}", result.getCreatedDate(), result.getLastModifiedDate(),
-				result.getPermissions());
+		log.debug("Projection feature test:{}, {}", result.getCreatedDate(), result.getLastModifiedDate());
+		
+		result.getPermissions().forEach(p -> log.debug(p.toString()));
 
 		User useramit = userRepo.findByName("amit");
 		log.debug("User:{}", useramit.getPermissions());
@@ -271,11 +272,11 @@ interface RoleProjection {
 
 	Date getLastModifiedDate();
 
-	List<Permissions> getPermissions();
+	List<PermissionProjection> getPermissions();
 
 }
 
-interface permissionProjection {
+interface PermissionProjection {
 	String getName();
 }
 

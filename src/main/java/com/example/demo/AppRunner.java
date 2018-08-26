@@ -26,6 +26,7 @@ import org.springframework.data.domain.Sort.Direction;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
+import org.springframework.stereotype.Component;
 
 import lombok.AccessLevel;
 import lombok.Data;
@@ -36,8 +37,8 @@ import lombok.experimental.FieldDefaults;
 import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
-
 @Order(1)
+@Component
 public class AppRunner implements ApplicationRunner {
 
 	@Autowired
@@ -53,9 +54,11 @@ public class AppRunner implements ApplicationRunner {
 	      IntStream.range(1, 10).forEach(i -> personRepo.save(new Person("Monal", "Agni", i * rand.nextInt(30),new Teacher("teacher_name_"+rand.nextInt(30)), SexType.FEMALE)));
 	      IntStream.range(1, 2).forEach(i -> personRepo.save(new Person("Cuckoo", "sacredgames", i * rand.nextInt(30),new Teacher("teacher_name_"+rand.nextInt(30)), SexType.TRANS)));
 
+	      log.info("--> projection demo");
 		personRepo.findByFirstName("AMIT", Sort.by(Direction.DESC, "id"))
 				.forEach(person -> log.debug(person.toString()));
-
+		log.info("<-- end");
+		
 		personRepo.findByFirstNameAndLastName("amit", "shri").forEach(p -> log.debug(p.toString()));
 
 		personRepo.findByIdLessThan(5L).forEach(p -> log.debug(p.toString()));
@@ -137,13 +140,19 @@ class Teacher {
 	@Column
 	@NonNull
 	String name;
+}
 
-	 
 
+interface PersonProjection{
+	String getFirstName();
+	TeacherProjection getTeacherName();
+	interface TeacherProjection{
+		String getName();
+	}
 }
 
 interface PersonRepository extends JpaRepository<Person, Long> {
-	List<Person> findByFirstName(String name, Sort sort);
+	List<PersonProjection> findByFirstName(String name, Sort sort);
 
 	List<Person> findByFirstNameAndLastName(String f, String l);
 
@@ -162,4 +171,7 @@ interface PersonRepository extends JpaRepository<Person, Long> {
 	List<Person> findByTeacher_teacherIdIn(List<Long> idList);
 	
 	List<Person> findByStatus(SexType type);
+	
+	
+	 
 }
